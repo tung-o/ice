@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>นักสร้างแผนภูมิ ป.4 - สื่อการสอนวิทยาการคำนวณ</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Sarabun & Mali for kid-friendly Thai typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Sarabun', sans-serif;
+    }
+    .font-kids {
+      font-family: 'Mali', cursive;
+    }
+    /* Smooth transition for chart bars */
+    .chart-bar-transition {
+      transition: height 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease;
+    }
+    /* Subtle custom pattern */
+    .bg-grid-pattern {
+      background-size: 24px 24px;
+      background-image: 
+        linear-gradient(to right, rgba(226, 232, 240, 0.6) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(226, 232, 240, 0.6) 1px, transparent 1px);
+    }
+    /* Glass card effect */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+    }
+    /* Pulse scale animation for interactive counters */
+    @keyframes miniBounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    .bounce-active:active {
+      animation: miniBounce 0.15s ease-in-out;
+    }
+  </style>
+</head>
+
+<body class="bg-amber-50/60 min-h-screen text-slate-800 flex flex-col justify-between selection:bg-amber-200">
+  
+  <!-- Navigation / Header -->
+  <header class="bg-white border-b-4 border-amber-400 shadow-sm sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-white text-2xl shadow-md transform rotate-2">
+          📊
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-xl md:text-2xl font-bold font-kids text-amber-900 tracking-wide">นักสร้างแผนภูมิ ป.4</h1>
+            <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold border border-amber-300">วิทยาการคำนวณ</span>
+          </div>
+          <p class="text-xs text-slate-500">บทเรียน: การนำเสนอข้อมูลเปรียบเทียบด้วยแผนภูมิแท่ง</p>
+        </div>
+      </div>
+
+      <!-- Controls & Progress Tracker -->
+      <div class="flex items-center space-x-2 md:space-x-3">
+        <!-- Sound toggle -->
+        <button id="btn-sound" onclick="toggleAudio()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition font-kids text-xs flex items-center gap-1.5" title="เปิด/ปิดเสียง">
+          <span id="sound-icon">🔊</span>
+          <span class="hidden sm:inline" id="sound-text">เสียง: เปิด</span>
+        </button>
+
+        <!-- Topic Level Selector -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold">
+          <span class="px-2 text-slate-500">โจทย์:</span>
+          <button id="lvl-btn-0" onclick="switchTopic(0)" class="px-2.5 py-1 rounded-lg bg-amber-500 text-white shadow-xs transition">1. ผลไม้ 🍎</button>
+          <button id="lvl-btn-1" onclick="switchTopic(1)" class="px-2.5 py-1 rounded-lg text-slate-600 hover:bg-slate-200 transition">2. สัตว์เลี้ยง 🐶</button>
+          <button id="lvl-btn-2" onclick="switchTopic(2)" class="px-2.5 py-1 rounded-lg text-slate-600 hover:bg-slate-200 transition">3. วิชาที่ชอบ 📚</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto w-full px-4 py-5 flex-1 space-y-6">
+    
+    <!-- Instruction Banner -->
+    <section class="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 text-white rounded-2xl p-4 md:p-5 shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="space-y-1 text-center md:text-left">
+        <div class="inline-flex items-center gap-1.5 bg-white/20 px-3 py-0.5 rounded-full text-xs font-bold text-yellow-200">
+          💡 คำชี้แจงกิจกรรม
+        </div>
+        <h2 class="text-lg md:text-xl font-bold font-kids">สังเกตข้อมูลในตาราง แล้วสร้างแผนภูมิแท่งเปรียบเทียบข้อมูลให้ถูกต้อง</h2>
+        <p class="text-xs md:text-sm text-blue-100">
+          กำหนด <strong class="text-yellow-200">ชื่อแผนภูมิ</strong>, <strong class="text-yellow-200">ชื่อแกน X</strong>, <strong class="text-yellow-200">ชื่อแกน Y</strong> และปรับ <strong class="text-yellow-200">ความสูงของแท่งข้อมูล</strong> ให้ตรงกับตาราง
+        </p>
+      </div>
+
+      <button onclick="openHelpModal()" class="px-4 py-2 bg-yellow-400 hover:bg-yellow-300 text-slate-900 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center gap-1.5 shrink-0 bounce-active">
+        <span>📖</span> แนะนำวิธีทำ
+      </button>
+    </section>
+
+    <!-- Main Grid: Left = Table & Axis Settings, Right = Live Bar Chart -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- LEFT COLUMN: Source Data & Configuration Panels (5 Cols) -->
+      <div class="lg:col-span-5 space-y-5">
+        
+        <!-- Source Data Table Card -->
+        <div class="glass-card rounded-2xl p-4 md:p-5 border-2 border-amber-200 shadow-md">
+          <div class="flex items-center justify-between mb-3 border-b border-amber-100 pb-2">
+            <h3 class="font-kids font-bold text-amber-900 text-base flex items-center gap-2">
+              <span>📋</span> ตารางข้อมูลตัวอย่าง
+            </h3>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800" id="table-topic-badge">โจทย์ที่ 1</span>
+          </div>
+
+          <!-- Dynamic Table Container -->
+          <div class="overflow-hidden rounded-xl border border-amber-200 bg-white shadow-inner">
+            <table class="w-full text-sm text-left">
+              <thead class="bg-amber-100/80 text-amber-950 font-bold border-b border-amber-200">
+                <tr>
+                  <th scope="col" class="py-2.5 px-4" id="table-th-category">รายการ</th>
+                  <th scope="col" class="py-2.5 px-4 text-right" id="table-th-value">จำนวน (คน)</th>
+                </tr>
+              </thead>
+              <tbody id="source-data-rows" class="divide-y divide-slate-100 font-medium">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+          <p class="text-xs text-slate-500 mt-2 flex items-center gap-1">
+            <span>🔎</span> <span>ใช้ข้อมูลนี้เพื่อนำไปสร้างแผนภูมิแท่งทางขวามือ</span>
+          </p>
+        </div>
+
+        <!-- Chart Settings Card (Title & Axes) -->
+        <div class="glass-card rounded-2xl p-4 md:p-5 border-2 border-blue-200 shadow-md space-y-4">
+          <div class="flex items-center justify-between border-b border-blue-100 pb-2">
+            <h3 class="font-kids font-bold text-blue-900 text-base flex items-center gap-2">
+              <span>⚙️</span> ส่วนประกอบของแผนภูมิ
+            </h3>
+            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md font-bold">ขั้นตอนที่ 1 & 2</span>
+          </div>
+
+          <!-- Step 1: Chart Title Selection -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700 flex items-center justify-between">
+              <span>1. เลือกชื่อแผนภูมิ (Chart Title) :</span>
+              <span class="text-amber-600 text-[11px] font-normal">*ต้องบอกเนื้อหาข้อมูลชัดเจน</span>
+            </label>
+            <select id="select-chart-title" onchange="handleTitleChange(this.value)" class="w-full bg-white border-2 border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition font-medium">
+              <option value="" disabled selected>-- แตะเพื่อเลือกชื่อแผนภูมิ --</option>
+              <!-- Options populated by JS -->
+            </select>
+          </div>
+
+          <!-- Step 2: Axis Labels -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <!-- X-Axis Label -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-700 flex items-center gap-1">
+                <span class="w-4 h-4 rounded bg-purple-100 text-purple-700 inline-flex items-center justify-center text-[10px] font-bold">X</span>
+                <span>แกน X (แนวนอน) :</span>
+              </label>
+              <select id="select-axis-x" onchange="handleAxisXChange(this.value)" class="w-full bg-white border-2 border-slate-300 rounded-xl px-2.5 py-1.5 text-xs focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition font-medium">
+                <option value="" disabled selected>-- เลือกชื่อแกน X --</option>
+                <!-- Options populated by JS -->
+              </select>
+            </div>
+
+            <!-- Y-Axis Label -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-bold text-slate-700 flex items-center gap-1">
+                <span class="w-4 h-4 rounded bg-emerald-100 text-emerald-700 inline-flex items-center justify-center text-[10px] font-bold">Y</span>
+                <span>แกน Y (แนวตั้ง) :</span>
+              </label>
+              <select id="select-axis-y" onchange="handleAxisYChange(this.value)" class="w-full bg-white border-2 border-slate-300 rounded-xl px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition font-medium">
+                <option value="" disabled selected>-- เลือกชื่อแกน Y --</option>
+                <!-- Options populated by JS -->
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Bar Values Interactive Adjusters -->
+        <div class="glass-card rounded-2xl p-4 md:p-5 border-2 border-emerald-200 shadow-md space-y-3">
+          <div class="flex items-center justify-between border-b border-emerald-100 pb-2">
+            <h3 class="font-kids font-bold text-emerald-900 text-base flex items-center gap-2">
+              <span>🎚️</span> กำหนดค่าความสูงของแท่ง
+            </h3>
+            <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md font-bold">ขั้นตอนที่ 3</span>
+          </div>
+          <p class="text-xs text-slate-500">กดปุ่ม <strong>-</strong> หรือ <strong>+</strong> เพื่อปรับค่าของแต่ละหมวดหมู่ให้ตรงกับตาราง:</p>
+
+          <div id="bar-controllers-container" class="space-y-2.5">
+            <!-- Dynamically generated item counters -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: Live Interactive Bar Chart View & Submission (7 Cols) -->
+      <div class="lg:col-span-7 space-y-4">
+        
+        <div class="glass-card rounded-3xl p-4 sm:p-6 border-2 border-indigo-200 shadow-xl relative overflow-hidden bg-white">
+          
+          <!-- Chart Header Info -->
+          <div class="text-center mb-2 px-2">
+            <div id="display-chart-title" class="min-h-[2rem] flex items-center justify-center font-kids font-bold text-base sm:text-xl text-indigo-950 px-3 py-1 bg-indigo-50/80 rounded-xl border border-dashed border-indigo-200 transition-all">
+              <span class="text-slate-400 italic font-normal text-sm">-- รอเลือกชื่อแผนภูมิ --</span>
+            </div>
+          </div>
+
+          <!-- Chart Area Layout -->
+          <div class="relative mt-4 flex items-stretch">
+            
+            <!-- Y-Axis Label (Rotated on the left) -->
+            <div class="flex items-center justify-center w-8 select-none">
+              <div id="display-axis-y" class="transform -rotate-90 origin-center whitespace-nowrap text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                แกน Y
+              </div>
+            </div>
+
+            <!-- Y Scale Grid and Plotting Board -->
+            <div class="flex-1 flex flex-col pl-1 sm:pl-2">
+              
+              <!-- Main Plot Area with Scale Numbers -->
+              <div class="relative h-72 sm:h-80 w-full flex">
+                
+                <!-- Y-Scale Ticks Numbers (Left side of grid) -->
+                <div id="y-scale-ticks" class="w-8 sm:w-10 h-full flex flex-col-reverse justify-between text-right pr-2 text-[11px] sm:text-xs font-bold text-slate-500 select-none pb-5">
+                  <!-- Generated via JS: e.g. 0, 2, 4, 6, 8, 10, 12, 14, 16 -->
+                </div>
+
+                <!-- Grid Background & Bars Container -->
+                <div class="flex-1 h-full relative border-l-2 border-b-2 border-slate-700 bg-slate-50/50 rounded-tr-xl flex flex-col justify-end">
+                  
+                  <!-- Grid horizontal lines -->
+                  <div id="grid-lines-container" class="absolute inset-0 pointer-events-none flex flex-col-reverse justify-between pb-5">
+                    <!-- Grid horizontal lines rendered here -->
+                  </div>
+
+                  <!-- Bars Flex Box -->
+                  <div id="bars-stage" class="relative z-10 w-full h-[calc(100%-1.25rem)] flex items-end justify-around px-2 sm:px-4">
+                    <!-- Dynamic Bars will appear here -->
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- X-Axis Labels Below Grid -->
+              <div class="flex pl-8 sm:pl-10 mt-1">
+                <div id="x-axis-categories" class="w-full flex justify-around px-2 sm:px-4 text-center">
+                  <!-- Category titles will sync here -->
+                </div>
+              </div>
+
+              <!-- X-Axis Label at Bottom -->
+              <div class="text-center mt-3">
+                <span id="display-axis-x" class="text-xs font-bold text-purple-700 bg-purple-50 px-3 py-1 rounded-md border border-purple-200 inline-block shadow-2xs">
+                  แกน X
+                </span>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Bottom Action Bar within Chart Box -->
+          <div class="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+            <button onclick="resetCurrentForm()" class="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-600 text-xs font-bold transition flex items-center gap-1 bounce-active">
+              <span>🔄</span> รีเซ็ตค่าใหม่
+            </button>
+
+            <div class="flex items-center gap-2">
+              <button onclick="verifyChartSubmission()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-kids font-bold text-sm shadow-md hover:shadow-lg transition transform active:scale-95 flex items-center gap-2">
+                <span>✅</span> ตรวจสอบและส่งคำตอบ
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Educational Hint / Learning takeaway note -->
+        <div class="bg-amber-100/70 border border-amber-300 rounded-2xl p-3.5 text-xs text-amber-900 flex items-start gap-2.5">
+          <span class="text-lg">💡</span>
+          <div>
+            <strong class="font-bold">หลักการนำเสนอข้อมูลด้วยแผนภูมิแท่ง:</strong>
+            <p class="text-amber-800 mt-0.5">
+              แผนภูมิแท่งเหมาะสำหรับ <em>“การเปรียบเทียบข้อมูลแต่ละหมวดหมู่”</em> โดยสังเกตจากความสูงของแท่ง ยิ่งแท่งสูงแปลว่ามีจำนวนมาก มองเห็นความแตกต่างได้รวดเร็วและชัดเจนที่สุด
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Verification Result Modal -->
+  <div id="result-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border-4 border-amber-400 transform transition-all animate-bounce-short">
+      
+      <div class="text-center">
+        <!-- Badge Emoji -->
+        <div id="modal-icon-badge" class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner">
+          🌟
+        </div>
+        
+        <h3 id="modal-title" class="font-kids text-2xl font-bold text-slate-800">ยอดเยี่ยมมาก!</h3>
+        <p id="modal-subtitle" class="text-xs text-slate-500 mt-0.5">ผลการตรวจแผนภูมิแท่งของนักเรียน</p>
+
+        <!-- Star Rating -->
+        <div id="modal-stars" class="flex justify-center gap-1.5 my-3 text-2xl">
+          <span>⭐</span><span>⭐</span><span>⭐</span>
+        </div>
+
+        <!-- Score Pill -->
+        <div class="inline-block px-4 py-1 rounded-full bg-amber-100 text-amber-900 font-kids font-bold text-sm mb-4">
+          คะแนนที่ได้: <span id="modal-score" class="text-lg text-emerald-600">100 / 100</span>
+        </div>
+      </div>
+
+      <!-- Checklist details -->
+      <div class="space-y-2 bg-slate-50 rounded-2xl p-3.5 border border-slate-200 text-xs text-left mb-5">
+        <div id="check-title" class="flex items-center justify-between py-1 border-b border-slate-200/60">
+          <span class="flex items-center gap-1.5"><span>🏷️</span> ชื่อแผนภูมิ:</span>
+          <span class="font-bold text-emerald-600">✓ ถูกต้อง</span>
+        </div>
+        <div id="check-axis-x" class="flex items-center justify-between py-1 border-b border-slate-200/60">
+          <span class="flex items-center gap-1.5"><span>➡️</span> แกน X (แนวนอน):</span>
+          <span class="font-bold text-emerald-600">✓ ถูกต้อง</span>
+        </div>
+        <div id="check-axis-y" class="flex items-center justify-between py-1 border-b border-slate-200/60">
+          <span class="flex items-center gap-1.5"><span>⬆️</span> แกน Y (แนวตั้ง):</span>
+          <span class="font-bold text-emerald-600">✓ ถูกต้อง</span>
+        </div>
+        <div id="check-bars" class="flex items-center justify-between py-1">
+          <span class="flex items-center gap-1.5"><span>📊</span> ความสูงแท่งข้อมูลทั้งหมด:</span>
+          <span class="font-bold text-emerald-600">✓ ถูกต้องครบถ้วน</span>
+        </div>
+      </div>
+
+      <!-- Feedback narrative -->
+      <p id="modal-feedback-text" class="text-xs text-slate-600 mb-5 leading-relaxed text-center px-2">
+        นักเรียนสามารถนำข้อมูลผลไม้มาสร้างแผนภูมิแท่งเปรียบเทียบได้อย่างสมบูรณ์แบบ!
+      </p>
+
+      <!-- Modal Action buttons -->
+      <div class="flex items-center justify-center gap-3">
+        <button onclick="closeModal()" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-100 transition">
+          แก้ไขคำตอบ
+        </button>
+        <button id="btn-next-level" onclick="nextTopic()" class="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-kids font-bold text-xs shadow-md transition">
+          ทำโจทย์ข้อถัดไป ➔
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Help Guide Modal -->
+  <div id="help-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border-4 border-blue-300 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b pb-3 mb-4">
+        <h3 class="font-kids text-xl font-bold text-blue-900 flex items-center gap-2">
+          <span>📖</span> คู่มือ: การสร้างแผนภูมิแท่ง (ป.4)
+        </h3>
+        <button onclick="closeHelpModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold p-1">✕</button>
+      </div>
+
+      <div class="space-y-4 text-xs text-slate-700 leading-relaxed">
+        <div class="flex gap-3 items-start bg-blue-50 p-3 rounded-2xl">
+          <div class="text-2xl">1️⃣</div>
+          <div>
+            <strong class="text-blue-900 text-sm">ชื่อแผนภูมิ (Title):</strong>
+            <p>ต้องบอกให้ชัดเจนว่าแผนภูมินี้แสดงอะไร ของใคร หรือข้อมูลเกี่ยวกับเรื่องใด</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 items-start bg-purple-50 p-3 rounded-2xl">
+          <div class="text-2xl">2️⃣</div>
+          <div>
+            <strong class="text-purple-900 text-sm">แกน X (แนวนอน):</strong>
+            <p>มักใช้แสดง "รายการหรือหมวดหมู่" เช่น ชนิดของผลไม้, วันในสัปดาห์, ชื่อวิชา</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 items-start bg-emerald-50 p-3 rounded-2xl">
+          <div class="text-2xl">3️⃣</div>
+          <div>
+            <strong class="text-emerald-900 text-sm">แกน Y (แนวตั้ง):</strong>
+            <p>ใช้แสดง "จำนวนหรือตัวเลข" พร้อมระบุหน่วยนับให้ชัดเจน เช่น จำนวน (คน), น้ำหนัก (กิโลกรัม)</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 items-start bg-amber-50 p-3 rounded-2xl">
+          <div class="text-2xl">4️⃣</div>
+          <div>
+            <strong class="text-amber-900 text-sm">ความสูงของแท่ง (Bar Height):</strong>
+            <p>แท่งรูปสี่เหลี่ยมผืนผ้าจะต้องสูงขึ้นไปตามจำนวนข้อมูลที่กำหนดในตารางพอดีเป๊ะ</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 text-center">
+        <button onclick="closeHelpModal()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold font-kids shadow-sm">
+          เข้าใจแล้ว เริ่มทำเลย!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Alert Toast (No window.alert) -->
+  <div id="toast-box" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 text-xs font-medium border border-slate-700">
+      <span id="toast-icon">ℹ️</span>
+      <span id="toast-msg">ข้อความแจ้งเตือน</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-center py-3 text-xs text-slate-400 bg-white/70 border-t border-slate-200">
+    สื่อการเรียนรู้วิชาวิทยาการคำนวณ ชั้นประถมศึกษาปีที่ 4 • สาระการเรียนรู้การนำเสนอข้อมูล
+  </footer>
+
+  <!-- Web Audio Synthesis Engine & Interactive Logic -->
+  <script>
+    // --- 1. Audio Engine using Web Audio API (Synthesizer sounds - No external MP3 files needed) ---
+    let audioEnabled = true;
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playTone(freq, type = 'sine', duration = 0.1, gainVal = 0.15) {
+      if (!audioEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) {
+        console.warn('Audio not allowed yet:', e);
+      }
+    }
+
+    function soundPop(up = true) {
+      playTone(up ? 520 : 380, 'sine', 0.08, 0.18);
+    }
+
+    function soundSuccess() {
+      if (!audioEnabled) return;
+      const notes = [440, 554.37, 659.25, 880]; // A major arpeggio
+      notes.forEach((freq, idx) => {
+        setTimeout(() => {
+          playTone(freq, 'triangle', 0.25, 0.15);
+        }, idx * 100);
+      });
+    }
+
+    function soundMistake() {
+      if (!audioEnabled) return;
+      playTone(280, 'sawtooth', 0.2, 0.15);
+      setTimeout(() => playTone(220, 'sawtooth', 0.25, 0.15), 120);
+    }
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      const icon = document.getElementById('sound-icon');
+      const text = document.getElementById('sound-text');
+      if (audioEnabled) {
+        icon.textContent = '🔊';
+        text.textContent = 'เสียง: เปิด';
+        showToast('เปิดเสียงเอฟเฟกต์แล้ว', '🔊');
+      } else {
+        icon.textContent = '🔇';
+        text.textContent = 'เสียง: ปิด';
+        showToast('ปิดเสียงเอฟเฟกต์แล้ว', '🔇');
+      }
+    }
+
+    // --- 2. Topic Datasets (Example 1 from prompt + 2 extra engaging Grade 4 topics) ---
+    const TOPICS = [
+      {
+        id: 0,
+        name: "ผลไม้ที่นักเรียนชั้น ป.4 ชื่นชอบ",
+        description: "สำรวจความคิดเห็นของนักเรียนชั้น ป.4 จำนวน 50 คน ว่าชื่นชอบผลไม้ชนิดใดมากที่สุด",
+        correctTitle: "แผนภูมิแสดงผลไม้ที่นักเรียนชั้น ป.4 ชื่นชอบ",
+        titleOptions: [
+          "แผนภูมิแสดงผลไม้ที่นักเรียนชั้น ป.4 ชื่นชอบ",
+          "แผนภูมิแสดงราคาขายผลไม้ในตลาดสด",
+          "แผนภูมิแสดงน้ำหนักของผลไม้แต่ละลูก",
+          "แผนภูมิจำนวนคุณครูที่ชอบรับประทานอาหาร"
+        ],
+        axisXCorrect: "ชนิดของผลไม้",
+        axisXOptions: ["ชนิดของผลไม้", "จำนวนเงิน (บาท)", "เดือนที่ปลูกผลไม้", "โรงเรียน"],
+        axisYCorrect: "จำนวนนักเรียน (คน)",
+        axisYOptions: ["จำนวนนักเรียน (คน)", "น้ำหนัก (กิโลกรัม)", "ชนิดของผลไม้", "คะแนนสอบ"],
+        maxScale: 16,
+        stepInterval: 2,
+        items: [
+          { name: "แอปเปิล", emoji: "🍎", value: 8, color: "#ef4444", bgLight: "#fee2e2" },
+          { name: "กล้วย", emoji: "🍌", value: 12, color: "#eab308", bgLight: "#fef9c3" },
+          { name: "ส้ม", emoji: "🍊", value: 6, color: "#f97316", bgLight: "#ffedd5" },
+          { name: "แตงโม", emoji: "🍉", value: 10, color: "#10b981", bgLight: "#d1fae5" },
+          { name: "มะม่วง", emoji: "🥭", value: 14, color: "#f59e0b", bgLight: "#fef3c7" }
+        ]
+      },
+      {
+        id: 1,
+        name: "สัตว์เลี้ยงยอดนิยมของนักเรียน",
+        description: "สำรวจสัตว์เลี้ยงที่นักเรียนชั้น ป.4 เลี้ยงไว้ที่บ้าน เพื่อเปรียบเทียบความนิยม",
+        correctTitle: "แผนภูมิแสดงสัตว์เลี้ยงยอดนิยมของนักเรียนชั้น ป.4",
+        titleOptions: [
+          "แผนภูมิแสดงสัตว์เลี้ยงยอดนิยมของนักเรียนชั้น ป.4",
+          "แผนภูมิแสดงอายุขัยเฉลี่ยของสัตว์ป่า",
+          "แผนภูมิแสดงค่ารักษาพยาบาลสัตว์เลี้ยง",
+          "แผนภูมิชนิดพันธุ์สัตว์ในสวนสัตว์เปิด"
+        ],
+        axisXCorrect: "ชนิดของสัตว์เลี้ยง",
+        axisXOptions: ["ชนิดของสัตว์เลี้ยง", "น้ำหนักตัวสัตว์", "วันที่รับมาเลี้ยง"],
+        axisYCorrect: "จำนวนนักเรียน (คน)",
+        axisYOptions: ["จำนวนนักเรียน (คน)", "ส่วนสูง (เซนติเมตร)", "ค่าอาหาร (บาท)"],
+        maxScale: 16,
+        stepInterval: 2,
+        items: [
+          { name: "สุนัข", emoji: "🐶", value: 14, color: "#8b5cf6", bgLight: "#ede9fe" },
+          { name: "แมว", emoji: "🐱", value: 16, color: "#ec4899", bgLight: "#fce7f3" },
+          { name: "กระต่าย", emoji: "🐰", value: 6, color: "#06b6d4", bgLight: "#cffafe" },
+          { name: "ปลาสวยงาม", emoji: "🐠", value: 10, color: "#3b82f6", bgLight: "#dbeafe" },
+          { name: "นก", emoji: "🦜", value: 4, color: "#14b8a6", bgLight: "#ccfbf1" }
+        ]
+      },
+      {
+        id: 2,
+        name: "วิชาที่นักเรียนชอบเรียนมากที่สุด",
+        description: "สำรวจวิชาเรียนที่นักเรียนชั้น ป.4 ชื่นชอบมากที่สุดในภาคเรียนนี้",
+        correctTitle: "แผนภูมิแสดงวิชาที่นักเรียนชั้น ป.4 ชอบเรียนมากที่สุด",
+        titleOptions: [
+          "แผนภูมิแสดงวิชาที่นักเรียนชั้น ป.4 ชอบเรียนมากที่สุด",
+          "แผนภูมิแสดงคะแนนสอบปลายภาคทุกวิชา",
+          "แผนภูมิแสดงจำนวนชั่วโมงการบ้านรายสัปดาห์",
+          "แผนภูมิรายชื่อคุณครูประจำชั้น"
+        ],
+        axisXCorrect: "ชื่อวิชาเรียน",
+        axisXOptions: ["ชื่อวิชาเรียน", "ห้องเรียน", "คะแนนเฉลี่ย"],
+        axisYCorrect: "จำนวนนักเรียน (คน)",
+        axisYOptions: ["จำนวนนักเรียน (คน)", "ชั่วโมงเรียน", "จำนวนหนังสือเรียน"],
+        maxScale: 16,
+        stepInterval: 2,
+        items: [
+          { name: "วิทยาการคำนวณ", emoji: "💻", value: 16, color: "#6366f1", bgLight: "#e0e7ff" },
+          { name: "วิทยาศาสตร์", emoji: "🔬", value: 12, color: "#0284c7", bgLight: "#e0f2fe" },
+          { name: "คณิตศาสตร์", emoji: "📐", value: 8, color: "#d97706", bgLight: "#fef3c7" },
+          { name: "ศิลปะ", emoji: "🎨", value: 14, color: "#db2777", bgLight: "#fce7f3" },
+          { name: "พละศึกษา", emoji: "⚽", value: 10, color: "#16a34a", bgLight: "#dcfce7" }
+        ]
+      }
+    ];
+
+    // State variables
+    let currentTopicIndex = 0;
+    let userChartState = {
+      title: "",
+      axisX: "",
+      axisY: "",
+      values: [] // [0, 0, 0, 0, 0]
+    };
+
+    // Initialize Application
+    window.addEventListener('DOMContentLoaded', () => {
+      loadTopic(0);
+    });
+
+    function loadTopic(index) {
+      currentTopicIndex = index;
+      const topic = TOPICS[index];
+
+      // Update topic buttons styling
+      TOPICS.forEach((_, idx) => {
+        const btn = document.getElementById(`lvl-btn-${idx}`);
+        if (btn) {
+          if (idx === index) {
+            btn.className = "px-2.5 py-1 rounded-lg bg-amber-500 text-white shadow-xs transition font-bold";
+          } else {
+            btn.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:bg-slate-200 transition font-normal";
+          }
+        }
+      });
+
+      document.getElementById('table-topic-badge').textContent = `โจทย์ที่ ${index + 1}: ${topic.name}`;
+
+      // Reset state for new topic
+      userChartState = {
+        title: "",
+        axisX: "",
+        axisY: "",
+        values: new Array(topic.items.length).fill(0) // Start with bars at 0 for kids to build!
+      };
+
+      // Populate Source Table
+      renderSourceTable(topic);
+
+      // Populate Select Dropdowns
+      populateSelectDropdowns(topic);
+
+      // Render Bar Controls
+      renderBarControls(topic);
+
+      // Render Chart Grid & Scale
+      renderChartGrid(topic);
+
+      // Update Live Chart Visuals
+      updateLiveChartVisuals();
+    }
+
+    function switchTopic(index) {
+      soundPop(true);
+      loadTopic(index);
+      showToast(`เปลี่ยนโจทย์เป็น: ${TOPICS[index].name}`, '🔄');
+    }
+
+    function nextTopic() {
+      closeModal();
+      const nextIdx = (currentTopicIndex + 1) % TOPICS.length;
+      loadTopic(nextIdx);
+    }
+
+    // --- 3. View Renderers ---
+    function renderSourceTable(topic) {
+      const tbody = document.getElementById('source-data-rows');
+      tbody.innerHTML = '';
+      
+      topic.items.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-amber-50/50 transition-colors";
+        tr.innerHTML = `
+          <td class="py-2 px-4 flex items-center gap-2">
+            <span class="text-base">${item.emoji}</span>
+            <span class="font-bold text-slate-800">${item.name}</span>
+          </td>
+          <td class="py-2 px-4 text-right">
+            <span class="inline-block bg-slate-100 text-slate-800 font-extrabold px-2.5 py-0.5 rounded-lg border border-slate-200">
+              ${item.value} คน
+            </span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function populateSelectDropdowns(topic) {
+      // 1. Chart Title Dropdown
+      const titleSelect = document.getElementById('select-chart-title');
+      titleSelect.innerHTML = '<option value="" disabled selected>-- แตะเพื่อเลือกชื่อแผนภูมิ --</option>';
+      topic.titleOptions.forEach(title => {
+        const opt = document.createElement('option');
+        opt.value = title;
+        opt.textContent = title;
+        titleSelect.appendChild(opt);
+      });
+
+      // 2. Axis X Dropdown
+      const axisXSelect = document.getElementById('select-axis-x');
+      axisXSelect.innerHTML = '<option value="" disabled selected>-- เลือกแกน X --</option>';
+      topic.axisXOptions.forEach(optVal => {
+        const opt = document.createElement('option');
+        opt.value = optVal;
+        opt.textContent = optVal;
+        axisXSelect.appendChild(opt);
+      });
+
+      // 3. Axis Y Dropdown
+      const axisYSelect = document.getElementById('select-axis-y');
+      axisYSelect.innerHTML = '<option value="" disabled selected>-- เลือกแกน Y --</option>';
+      topic.axisYOptions.forEach(optVal => {
+        const opt = document.createElement('option');
+        opt.value = optVal;
+        opt.textContent = optVal;
+        axisYSelect.appendChild(opt);
+      });
+    }
+
+    function renderBarControls(topic) {
+      const container = document.getElementById('bar-controllers-container');
+      container.innerHTML = '';
+
+      topic.items.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = "flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 transition";
+        row.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg flex items-center justify-center text-sm shadow-xs" style="background-color: ${item.bgLight}">
+              ${item.emoji}
+            </span>
+            <span class="text-xs font-bold text-slate-800">${item.name}</span>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <button onclick="changeBarValue(${idx}, -1)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-600 font-bold text-base flex items-center justify-center transition shadow-2xs bounce-active" title="ลดค่า">
+              -
+            </button>
+            <div id="counter-val-${idx}" class="w-10 text-center font-kids font-bold text-sm text-slate-800">
+              0
+            </div>
+            <button onclick="changeBarValue(${idx}, 1)" class="w-8 h-8 rounded-lg bg-white border border-slate-300 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600 font-bold text-base flex items-center justify-center transition shadow-2xs bounce-active" title="เพิ่มค่า">
+              +
+            </button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function renderChartGrid(topic) {
+      const max = topic.maxScale;
+      const step = topic.stepInterval;
+
+      // Render Y Ticks
+      const yTicksContainer = document.getElementById('y-scale-ticks');
+      yTicksContainer.innerHTML = '';
+      const gridLinesContainer = document.getElementById('grid-lines-container');
+      gridLinesContainer.innerHTML = '';
+
+      for (let v = 0; v <= max; v += step) {
+        // Tick label
+        const tick = document.createElement('span');
+        tick.textContent = v;
+        tick.className = "leading-none";
+        yTicksContainer.appendChild(tick);
+
+        // Horizontal Grid line
+        const line = document.createElement('div');
+        line.className = "w-full border-b border-dashed border-slate-200";
+        gridLinesContainer.appendChild(line);
+      }
+
+      // Render Bars Stage & X Categories
+      const barsStage = document.getElementById('bars-stage');
+      barsStage.innerHTML = '';
+      const xCatContainer = document.getElementById('x-axis-categories');
+      xCatContainer.innerHTML = '';
+
+      topic.items.forEach((item, idx) => {
+        // Individual Bar Column
+        const barCol = document.createElement('div');
+        barCol.className = "flex-1 flex flex-col items-center justify-end h-full max-w-[56px] mx-1 relative group cursor-pointer";
+        barCol.title = `คลิกเพื่อเพิ่มความสูง: ${item.name}`;
+        barCol.onclick = () => changeBarValue(idx, 1);
+
+        barCol.innerHTML = `
+          <!-- Floating Value Tag -->
+          <div id="bar-tag-${idx}" class="text-[10px] sm:text-xs font-bold text-slate-600 mb-1 transition-all">
+            0
+          </div>
+          <!-- Bar element -->
+          <div id="chart-bar-${idx}" class="chart-bar-transition w-full rounded-t-lg shadow-sm border border-b-0 border-black/10 relative" style="height: 0%; background-color: ${item.color};">
+            <div class="absolute inset-0 bg-white/10 rounded-t-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          </div>
+        `;
+        barsStage.appendChild(barCol);
+
+        // X Label Item
+        const catCol = document.createElement('div');
+        catCol.className = "flex-1 text-center max-w-[56px] mx-1";
+        catCol.innerHTML = `
+          <div class="text-xs sm:text-sm">${item.emoji}</div>
+          <div class="text-[10px] sm:text-xs font-medium text-slate-700 truncate" title="${item.name}">${item.name}</div>
+        `;
+        xCatContainer.appendChild(catCol);
+      });
+    }
+
+    // --- 4. User Interaction Handlers ---
+    function handleTitleChange(val) {
+      userChartState.title = val;
+      soundPop(true);
+      updateLiveChartVisuals();
+    }
+
+    function handleAxisXChange(val) {
+      userChartState.axisX = val;
+      soundPop(true);
+      updateLiveChartVisuals();
+    }
+
+    function handleAxisYChange(val) {
+      userChartState.axisY = val;
+      soundPop(true);
+      updateLiveChartVisuals();
+    }
+
+    function changeBarValue(idx, delta) {
+      const topic = TOPICS[currentTopicIndex];
+      let newVal = userChartState.values[idx] + delta;
+      
+      // Clamp between 0 and maxScale
+      if (newVal < 0) newVal = 0;
+      if (newVal > topic.maxScale) newVal = topic.maxScale;
+
+      if (newVal !== userChartState.values[idx]) {
+        userChartState.values[idx] = newVal;
+        soundPop(delta > 0);
+        updateLiveChartVisuals();
+      }
+    }
+
+    function updateLiveChartVisuals() {
+      const topic = TOPICS[currentTopicIndex];
+
+      // 1. Update Title Header
+      const titleElem = document.getElementById('display-chart-title');
+      if (userChartState.title) {
+        titleElem.innerHTML = `<span class="text-indigo-900">${userChartState.title}</span>`;
+      } else {
+        titleElem.innerHTML = `<span class="text-slate-400 italic font-normal text-sm">-- รอเลือกชื่อแผนภูมิ --</span>`;
+      }
+
+      // 2. Update Axis Labels
+      const axisXElem = document.getElementById('display-axis-x');
+      axisXElem.textContent = userChartState.axisX ? `แกน X: ${userChartState.axisX}` : 'แกน X: (ยังไม่ได้เลือก)';
+
+      const axisYElem = document.getElementById('display-axis-y');
+      axisYElem.textContent = userChartState.axisY ? userChartState.axisY : 'แกน Y';
+
+      // 3. Update Bar Heights & Numeric Tags
+      topic.items.forEach((item, idx) => {
+        const val = userChartState.values[idx] || 0;
+        const percentage = (val / topic.maxScale) * 100;
+        
+        // Counter text on left panel
+        const counterElem = document.getElementById(`counter-val-${idx}`);
+        if (counterElem) counterElem.textContent = val;
+
+        // Chart Bar height
+        const barElem = document.getElementById(`chart-bar-${idx}`);
+        if (barElem) {
+          barElem.style.height = `${percentage}%`;
+        }
+
+        // Top tag above the bar
+        const tagElem = document.getElementById(`bar-tag-${idx}`);
+        if (tagElem) {
+          tagElem.textContent = val;
+          if (val > 0) {
+            tagElem.className = "text-[10px] sm:text-xs font-extrabold text-slate-800 mb-1 transition-all transform scale-110";
+          } else {
+            tagElem.className = "text-[10px] sm:text-xs font-normal text-slate-400 mb-1 transition-all";
+          }
+        }
+      });
+    }
+
+    function resetCurrentForm() {
+      soundMistake();
+      loadTopic(currentTopicIndex);
+      showToast('รีเซ็ตข้อมูลแผนภูมิเรียบร้อยแล้ว', '🔄');
+    }
+
+    // --- 5. Verification & Grading Logic ---
+    function verifyChartSubmission() {
+      const topic = TOPICS[currentTopicIndex];
+      
+      // Verification flags
+      const isTitleCorrect = userChartState.title === topic.correctTitle;
+      const isAxisXCorrect = userChartState.axisX === topic.axisXCorrect;
+      const isAxisYCorrect = userChartState.axisY === topic.axisYCorrect;
+
+      // Bars verification
+      let correctBarsCount = 0;
+      let barErrors = [];
+
+      topic.items.forEach((item, idx) => {
+        if (userChartState.values[idx] === item.value) {
+          correctBarsCount++;
+        } else {
+          barErrors.push(`${item.name} (ในตารางมี ${item.value} คน แต่นักเรียนใส่ ${userChartState.values[idx]})`);
+        }
+      });
+
+      const totalItems = topic.items.length;
+      const allBarsCorrect = correctBarsCount === totalItems;
+
+      // Calculate score out of 100
+      // Title = 25 pts, Axis X = 15 pts, Axis Y = 15 pts, Bars = 45 pts (9 pts per bar)
+      let score = 0;
+      if (isTitleCorrect) score += 25;
+      if (isAxisXCorrect) score += 15;
+      if (isAxisYCorrect) score += 15;
+      score += Math.round((correctBarsCount / totalItems) * 45);
+
+      // Open Evaluation Modal
+      showEvaluationModal({
+        score,
+        isTitleCorrect,
+        isAxisXCorrect,
+        isAxisYCorrect,
+        allBarsCorrect,
+        correctBarsCount,
+        totalItems,
+        barErrors,
+        topic
+      });
+    }
+
+    function showEvaluationModal(result) {
+      const modal = document.getElementById('result-modal');
+      const iconBadge = document.getElementById('modal-icon-badge');
+      const title = document.getElementById('modal-title');
+      const stars = document.getElementById('modal-stars');
+      const scoreElem = document.getElementById('modal-score');
+      const feedback = document.getElementById('modal-feedback-text');
+
+      // Update Checklist elements
+      const checkTitle = document.getElementById('check-title');
+      checkTitle.innerHTML = `
+        <span class="flex items-center gap-1.5"><span>🏷️</span> ชื่อแผนภูมิ:</span>
+        <span class="font-bold ${result.isTitleCorrect ? 'text-emerald-600' : 'text-rose-500'}">
+          ${result.isTitleCorrect ? '✓ ถูกต้อง' : '✗ ยังไม่ถูกต้อง'}
+        </span>
+      `;
+
+      const checkAxisX = document.getElementById('check-axis-x');
+      checkAxisX.innerHTML = `
+        <span class="flex items-center gap-1.5"><span>➡️</span> แกน X (แนวนอน):</span>
+        <span class="font-bold ${result.isAxisXCorrect ? 'text-emerald-600' : 'text-rose-500'}">
+          ${result.isAxisXCorrect ? '✓ ถูกต้อง' : '✗ ยังไม่ถูกต้อง'}
+        </span>
+      `;
+
+      const checkAxisY = document.getElementById('check-axis-y');
+      checkAxisY.innerHTML = `
+        <span class="flex items-center gap-1.5"><span>⬆️</span> แกน Y (แนวตั้ง):</span>
+        <span class="font-bold ${result.isAxisYCorrect ? 'text-emerald-600' : 'text-rose-500'}">
+          ${result.isAxisYCorrect ? '✓ ถูกต้อง' : '✗ ยังไม่ถูกต้อง'}
+        </span>
+      `;
+
+      const checkBars = document.getElementById('check-bars');
+      checkBars.innerHTML = `
+        <span class="flex items-center gap-1.5"><span>📊</span> ความสูงแท่ง (${result.correctBarsCount}/${result.totalItems}):</span>
+        <span class="font-bold ${result.allBarsCorrect ? 'text-emerald-600' : 'text-amber-600'}">
+          ${result.allBarsCorrect ? '✓ ถูกต้องครบถ้วน' : `ถูก ${result.correctBarsCount} จาก ${result.totalItems}`}
+        </span>
+      `;
+
+      scoreElem.textContent = `${result.score} / 100`;
+
+      // Rating & Sound triggers
+      if (result.score === 100) {
+        soundSuccess();
+        triggerConfetti();
+        iconBadge.className = "w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner";
+        iconBadge.textContent = "🏆";
+        title.textContent = "ยอดเยี่ยมที่สุด! เก่งมากๆ";
+        title.className = "font-kids text-2xl font-bold text-emerald-800";
+        stars.innerHTML = '<span>⭐</span><span>⭐</span><span>⭐</span>';
+        feedback.innerHTML = `เก่งมากเลยครับ! นักเรียนสร้างแผนภูมิแท่งเปรียบเทียบข้อมูล <strong>${result.topic.name}</strong> ได้ถูกต้องตามหลักการทุกประการ พร้อมนำเสนอข้อมูลได้อย่างชัดเจน`;
+      } else if (result.score >= 70) {
+        soundSuccess();
+        iconBadge.className = "w-16 h-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner";
+        iconBadge.textContent = "👍";
+        title.textContent = "ทำได้ดีมากครับ!";
+        title.className = "font-kids text-2xl font-bold text-amber-800";
+        stars.innerHTML = '<span>⭐</span><span>⭐</span><span class="opacity-30">⭐</span>';
+        feedback.innerHTML = `เกือบสมบูรณ์แล้ว! ลองตรวจสอบความถูกต้องของส่วนที่ยังไม่ถูกต้องอีกนิด แล้วลองส่งตรวจใหม่อีกครั้งนะครับ`;
+      } else {
+        soundMistake();
+        iconBadge.className = "w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner";
+        iconBadge.textContent = "💪";
+        title.textContent = "พยายามอีกนิดนะ!";
+        title.className = "font-kids text-2xl font-bold text-rose-800";
+        stars.innerHTML = '<span>⭐</span><span class="opacity-30">⭐</span><span class="opacity-30">⭐</span>';
+        feedback.innerHTML = `อย่าเพิ่งท้อนะ! ตรวจดูตารางข้อมูลทางซ้ายมือ แล้วค่อยๆ เลือกชื่อแผนภูมิ แกน และปรับความสูงของแท่งให้ตรงกับตารางนะครับ`;
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+      soundPop(false);
+      document.getElementById('result-modal').classList.add('hidden');
+    }
+
+    function openHelpModal() {
+      soundPop(true);
+      document.getElementById('help-modal').classList.remove('hidden');
+    }
+
+    function closeHelpModal() {
+      soundPop(false);
+      document.getElementById('help-modal').classList.add('hidden');
+    }
+
+    // --- Toast Notification Helper (Avoid window.alert) ---
+    let toastTimeout = null;
+    function showToast(msg, icon = 'ℹ️') {
+      const box = document.getElementById('toast-box');
+      document.getElementById('toast-msg').textContent = msg;
+      document.getElementById('toast-icon').textContent = icon;
+
+      box.classList.remove('translate-y-24', 'opacity-0');
+      box.classList.add('translate-y-0', 'opacity-100');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        box.classList.remove('translate-y-0', 'opacity-100');
+        box.classList.add('translate-y-24', 'opacity-0');
+      }, 2500);
+    }
+
+    // --- Celebration Confetti ---
+    function triggerConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      }
+    }
+  </script>
+</body>
+</html>
